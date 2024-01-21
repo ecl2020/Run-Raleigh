@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Run Raleigh</title>
+    <link rel="stylesheet" href="style.css">
+    
+</head>
+
+<body>
+    <a href="index.html">The Results</a>
+    <h1 id="the-run-raleigh-project">The Run Raleigh Project</h1>
+    <h2 id="part-1---getting-the-data">Part 1 - Getting the Data</h2>
+    <p>This is how I made the Run Raleigh Project. It started with finding out which roads are in Raleigh. But that
+        started with finding out where Raleigh is. I used a shapefile of <a
+            href="https://www.nconemap.gov/datasets/NCDOT::ncdot-city-boundaries/explore?location=35.886828%2C-78.667705%2C13.00">NCDOT
+            city boundaries</a> from NC OneMap and brought it into QGIS:</p>
+    <p><img alt="NC City Boundaries" src="Images\CityBounds.png">
+    </p>
+    <p>Then, I could select Raleigh city limits only and create a new layer:</p>
+    <p><img alt="Raleigh Selected"
+            src="Images\RaleighSelect.png"></p>
+    <p>I got <a
+            href="https://data.raleighnc.gov/datasets/Wake::streets-in-wake-county-nc/explore?location=35.797245%2C-78.628677%2C16.00">street
+            centerlines</a> in Wake County NC from Raleigh Open Data:</p>
+    <p><img alt="Wake Country Streets"
+            src="Images\WakeStreets.png"></p>
+    <p>Haven't the default colors just been stunning?! ... I clipped these two layers to yield only streets in Raleigh:
+    </p>
+    <p><img alt="Raleigh Selected Streets"
+            src="Images\RaleighStreets.png"></p>
+    <p>Immaculate. Raleigh Open Data also had a <a
+            href="https://data-ral.opendata.arcgis.com/datasets/23836bb9145943d485252d9665020ff1_0/explore?location=35.852163%2C-78.361685%2C9.79">Greenway
+            Trails</a> data set that I added.</p>
+    <p><img alt="Streets and Greenways"
+            src="Images\StreetsAndGreenway.png"></p>
+    <p>From QGIS, I exported the newly trimmed shapefiles as .csv files and added them into RStudio. I used RStudio
+        because it was already installed on my computer when I started this project. I wanted to use PyCharm since that
+        is what I used more of in school, but it turns out that costs money for not-students?</p>
+    <p>Looking at the two data sets I got, the streets looked extremely messy. The Greenway file was interesting - it
+        had different surface types listed for different segments of greenway, e.g. concrete, asphalt, decking, etc.
+        That gave me a neat milestone idea: run across every wood bridge.</p>
+    <p>Back on topic, the reason I brought these into RStudio was to get all the individual road names greenway names.
+        For the greenways I used <code
+            style="font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;">unique(RalGreenways$TRAIL_NAME)</code>
+        on my newly created <code
+            style="font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;">RalGreenways.csv</code> to
+        determine there are 26 greenways in Raleigh. However, it was time to start thinking about how to bring my runs
+        into this process.</p>
+    <h3 id="11-getting-my-runs-into-qgis">1.1 Getting My Runs into QGIS</h3>
+    <p>I use a Garmin Forerunner 35 to get GPS information for my runs, and log about everything on Strava. From Strava
+        there is an option to export the run GPX, and with this I could add the run into QGIS. Here's an example below
+        with the run track shown in blue:</p>
+    <p><img alt="Run Track" src="Images\RunTrack.png"></p>
+    <p>My solution to see if which roads or greenways the run covered was to make a small buffer around the run track,
+        then perform a clip against the greenway and/or road shapefiles. I had trouble with the buffer geometry because
+        the Strava GPX was not in the same projection as Raleigh's data sets. I changed everything into EPSG:2246 that
+        has better accuracy for North Carolina. I still had to change the buffer distance to be .0001 feet, so I'm not
+        convinced I solved all the projection problems, but that was good enough.</p>
+    <p><img alt="Run Track" src="Images\RunBuffered.png"></p>
+    <p>To measure progress, I can take the intersected greenway sections, get the total distance with the convenient
+        <code style="font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;">MAP_MILES</code> column
+        using <code
+            style="font-family: Menlo, Consolas, DejaVu Sans Mono, monospace;">sum(ExampleRun$MAP_MILES,na.rm=TRUE)</code>,
+        and get a percent completion against the total miles in the greenway and against the total miles in all
+        greenways. Just checking against this arbitrary run, the total miles from the clipped greenway vectors were much
+        greater than the distance of the run. I think this means some of the segments overlap and some distances get
+        counted several times. To me this means I cannot trust this QGIS geoprocessing to get me the absolute miles
+        covered, but I believe the relative completion yielded from geoprocessing should still be accurate.</p>
+    <p>It's time to work on displaying the data in a neat way.</p>
+    <h1 id="part-2---online-display">Part 2 - Online Display</h1>
+    <p>It's time to learn to use <a href="https://leafletjs.com/">Leaflet</a>, the leading open-source JavaScript
+        library for mobile-friendly interactive maps. Weighing just about 42 KB of JS, it has all the mapping features
+        most developers ever need.</p>
+
+
+</body>
+
+</html>

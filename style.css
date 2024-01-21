@@ -1,0 +1,10 @@
+img {
+    margin: auto;
+    max-width: 80%;
+    height: auto;
+}
+
+#map {
+    height: 80vh;
+    width: 80vw;
+}
