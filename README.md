@@ -1,2 +1,2 @@
 # Run Raleigh
- Running Every Road and Greenway
+ Running every road and greenway in Raleigh city limits.
